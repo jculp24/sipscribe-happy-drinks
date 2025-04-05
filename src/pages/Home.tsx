@@ -36,8 +36,8 @@ const Home = () => {
   return (
     <div className="sipscribe-container">
       <Header 
-        remainingCredits={user.remainingCredits}
         unreadNotifications={true}
+        location="Philadelphia, PA"
       />
       
       <main className="flex flex-col w-full pb-16">
