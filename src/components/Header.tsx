@@ -42,7 +42,7 @@ export function Header({
           asChild
           aria-label="Cart"
         >
-          <Link to="/subscription">
+          <Link to="/cart">
             <ShoppingCart className="h-5 w-5" />
             {remainingCredits > 0 && (
               <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
