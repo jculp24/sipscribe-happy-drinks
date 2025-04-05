@@ -13,7 +13,7 @@ const cartItems = [
     name: "Cold Brew Coffee",
     vendorName: "Coffee Haven",
     vendorId: "v1",
-    price: 4.99,
+    credits: 1,
     quantity: 1,
     image: "/placeholder.svg"
   },
@@ -22,7 +22,7 @@ const cartItems = [
     name: "Matcha Latte",
     vendorName: "Tea Paradise",
     vendorId: "v2",
-    price: 5.49,
+    credits: 1,
     quantity: 1,
     image: "/placeholder.svg"
   }
@@ -41,7 +41,7 @@ const Cart = () => {
     });
   };
 
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalCredits = items.reduce((sum, item) => sum + (item.credits * item.quantity), 0);
   
   return (
     <div className="sipscribe-container">
@@ -72,7 +72,7 @@ const Cart = () => {
                       <h3 className="font-medium">{item.name}</h3>
                       <p className="text-sm text-muted-foreground">{item.vendorName}</p>
                       <div className="flex items-center justify-between mt-2">
-                        <span className="font-semibold">${item.price.toFixed(2)}</span>
+                        <span className="font-semibold">{item.credits} {item.credits === 1 ? "Credit" : "Credits"}</span>
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -91,11 +91,11 @@ const Cart = () => {
               <Separator className="mb-4" />
               <div className="flex justify-between mb-2">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>{totalCredits} {totalCredits === 1 ? "Credit" : "Credits"}</span>
               </div>
               <div className="flex justify-between font-medium">
                 <span>Total</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>{totalCredits} {totalCredits === 1 ? "Credit" : "Credits"}</span>
               </div>
               
               <Button className="w-full mt-4">
