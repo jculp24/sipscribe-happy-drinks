@@ -1,47 +1,23 @@
 
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock data for cart items
-const cartItems = [
-  {
-    id: "1",
-    name: "Cold Brew Coffee",
-    vendorName: "Coffee Haven",
-    vendorId: "v1",
-    credits: 1,
-    quantity: 1,
-    image: "/placeholder.svg"
-  },
-  {
-    id: "2",
-    name: "Matcha Latte",
-    vendorName: "Tea Paradise",
-    vendorId: "v2",
-    credits: 1,
-    quantity: 1,
-    image: "/placeholder.svg"
-  }
-];
+import { useCart } from "@/contexts/CartContext";
 
 const Cart = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [items, setItems] = useState(cartItems);
+  const { items, removeItem, totalCredits } = useCart();
 
-  const removeItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
+  const handleRemoveItem = (id: string) => {
+    removeItem(id);
     toast({
       title: "Item removed",
       description: "Item has been removed from your cart."
     });
   };
-
-  const totalCredits = items.reduce((sum, item) => sum + (item.credits * item.quantity), 0);
   
   return (
     <div className="sipscribe-container">
@@ -76,7 +52,7 @@ const Cart = () => {
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => handleRemoveItem(item.id)}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>

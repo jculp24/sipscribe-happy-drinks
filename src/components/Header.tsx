@@ -4,20 +4,21 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/contexts/CartContext";
 
 interface HeaderProps {
   location?: string;
   unreadNotifications?: boolean;
-  remainingCredits?: number;
   className?: string;
 }
 
 export function Header({
   location = "Philadelphia, PA",
   unreadNotifications = false,
-  remainingCredits = 3,
   className,
 }: HeaderProps) {
+  const { totalCredits } = useCart();
+  
   return (
     <header
       className={cn(
@@ -44,9 +45,9 @@ export function Header({
         >
           <Link to="/cart">
             <ShoppingCart className="h-5 w-5" />
-            {remainingCredits > 0 && (
+            {totalCredits > 0 && (
               <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                {remainingCredits}
+                {totalCredits}
               </span>
             )}
           </Link>
