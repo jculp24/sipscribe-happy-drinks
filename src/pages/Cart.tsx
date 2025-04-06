@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Trash2, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,8 @@ import { useCart } from "@/contexts/CartContext";
 const Cart = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { items, removeItem, updateQuantity, totalCredits } = useCart();
+  const { items, removeItem, updateQuantity, totalCredits, checkout } = useCart();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleRemoveItem = (id: string, name: string) => {
     removeItem(id);
@@ -28,6 +30,27 @@ const Cart = () => {
       handleRemoveItem(id, name);
     } else {
       updateQuantity(id, currentQuantity - 1);
+    }
+  };
+  
+  const handleCheckout = async () => {
+    setIsProcessing(true);
+    
+    try {
+      await checkout();
+      toast({
+        title: "Order placed!",
+        description: `Your order has been placed and vendors have been notified. You can view it in your order history.`
+      });
+      navigate('/history');
+    } catch (error) {
+      toast({
+        title: "Checkout failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
   
@@ -109,15 +132,10 @@ const Cart = () => {
               
               <Button 
                 className="w-full mt-4"
-                onClick={() => {
-                  toast({
-                    title: "Order placed!",
-                    description: `You've used ${totalCredits} credits for this order.`
-                  });
-                  // In a real app, we would process the order here
-                }}
+                onClick={handleCheckout}
+                disabled={isProcessing}
               >
-                Checkout
+                {isProcessing ? "Processing..." : "Checkout"}
               </Button>
             </div>
           </>

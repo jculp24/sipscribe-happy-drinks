@@ -13,6 +13,7 @@ import Profile from "@/pages/Profile";
 import Subscription from "@/pages/Subscription";
 import Notifications from "@/pages/Notifications";
 import Cart from "@/pages/Cart";
+import History from "@/pages/History";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/subscription" element={<Subscription />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/history" element={<History />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
