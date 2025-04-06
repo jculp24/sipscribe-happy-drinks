@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Trash2 } from "lucide-react";
+import { ChevronLeft, Trash2, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
@@ -9,14 +9,26 @@ import { useCart } from "@/contexts/CartContext";
 const Cart = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { items, removeItem, totalCredits } = useCart();
+  const { items, removeItem, updateQuantity, totalCredits } = useCart();
 
-  const handleRemoveItem = (id: string) => {
+  const handleRemoveItem = (id: string, name: string) => {
     removeItem(id);
     toast({
       title: "Item removed",
-      description: "Item has been removed from your cart."
+      description: `${name} has been removed from your cart.`
     });
+  };
+
+  const handleIncreaseQuantity = (id: string, currentQuantity: number) => {
+    updateQuantity(id, currentQuantity + 1);
+  };
+
+  const handleDecreaseQuantity = (id: string, currentQuantity: number, name: string) => {
+    if (currentQuantity === 1) {
+      handleRemoveItem(id, name);
+    } else {
+      updateQuantity(id, currentQuantity - 1);
+    }
   };
   
   return (
@@ -48,14 +60,35 @@ const Cart = () => {
                       <h3 className="font-medium">{item.name}</h3>
                       <p className="text-sm text-muted-foreground">{item.vendorName}</p>
                       <div className="flex items-center justify-between mt-2">
-                        <span className="font-semibold">{item.credits} {item.credits === 1 ? "Credit" : "Credits"}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleRemoveItem(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        <span className="font-semibold">
+                          {item.credits * item.quantity} {item.credits * item.quantity === 1 ? "Credit" : "Credits"}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => handleDecreaseQuantity(item.id, item.quantity, item.name)}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="mx-1 font-medium">{item.quantity}</span>
+                          <Button 
+                            variant="outline" 
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => handleIncreaseQuantity(item.id, item.quantity)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleRemoveItem(item.id, item.name)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -74,7 +107,16 @@ const Cart = () => {
                 <span>{totalCredits} {totalCredits === 1 ? "Credit" : "Credits"}</span>
               </div>
               
-              <Button className="w-full mt-4">
+              <Button 
+                className="w-full mt-4"
+                onClick={() => {
+                  toast({
+                    title: "Order placed!",
+                    description: `You've used ${totalCredits} credits for this order.`
+                  });
+                  // In a real app, we would process the order here
+                }}
+              >
                 Checkout
               </Button>
             </div>

@@ -7,11 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { vendors, user } from "@/data/mockData";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 const VendorDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addItem } = useCart();
   const [activeTab, setActiveTab] = useState("menu");
   
   const vendor = vendors.find(v => v.id === id);
@@ -29,11 +31,24 @@ const VendorDetail = () => {
 
   const isFavorite = user.favorites.includes(vendor.id);
 
-  const handleAddToOrder = (itemName: string) => {
+  const handleAddToOrder = (itemId: string, itemName: string) => {
     if (user.remainingCredits > 0) {
+      const menuItem = vendor.menu.find(item => item.id === itemId);
+      if (!menuItem) return;
+      
+      addItem({
+        id: `${vendor.id}-${itemId}`,
+        name: itemName,
+        vendorName: vendor.name,
+        vendorId: vendor.id,
+        credits: 1, // Assuming each item costs 1 credit
+        quantity: 1,
+        image: "/placeholder.svg" // Using placeholder image
+      });
+      
       toast({
-        title: "Added to order",
-        description: `${itemName} has been added to your order.`,
+        title: "Added to cart",
+        description: `${itemName} has been added to your cart.`,
       });
     } else {
       toast({
@@ -107,7 +122,7 @@ const VendorDetail = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => handleAddToOrder(item.name)}
+                    onClick={() => handleAddToOrder(item.id, item.name)}
                     aria-label={`Add ${item.name} to order`}
                   >
                     Add
