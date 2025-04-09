@@ -37,7 +37,6 @@ const Home = () => {
     <div className="sipscribe-container">
       <Header 
         unreadNotifications={true}
-        location="Philadelphia, PA"
       />
       
       <main className="flex flex-col w-full pb-16">

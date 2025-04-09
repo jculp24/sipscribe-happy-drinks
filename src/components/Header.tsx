@@ -1,5 +1,5 @@
 
-import { Bell, MapPin, ShoppingCart, User } from "lucide-react";
+import { Bell, ShoppingCart, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
@@ -26,11 +26,12 @@ export function Header({
         className
       )}
     >
-      <div className="flex items-center gap-1">
-        <MapPin className="h-4 w-4 text-foreground" aria-hidden="true" />
-        <span className="text-sm font-medium text-foreground line-clamp-1">
-          {location}
-        </span>
+      <div className="flex items-center">
+        <img 
+          src="/lovable-uploads/603468bd-8f0d-4eee-a527-7ef15646b137.png" 
+          alt="SipScribe" 
+          className="h-6 w-auto"
+        />
       </div>
 
       <div className="flex items-center gap-1">

@@ -90,4 +90,40 @@
   .touch-target {
     @apply min-w-[44px] min-h-[44px] flex items-center justify-center;
   }
+
+  /* Mapbox popup styles */
+  .mapboxgl-popup-content {
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .dark .mapboxgl-popup-content {
+    background: #1f1f1f;
+    color: white;
+  }
+
+  .mapboxgl-popup-close-button {
+    color: var(--foreground);
+    font-size: 16px;
+    padding: 4px 8px;
+  }
+
+  .dark .mapboxgl-popup-close-button {
+    color: white;
+  }
+
+  .mapboxgl-popup-tip {
+    border-top-color: var(--background) !important;
+  }
+
+  .dark .mapboxgl-popup-tip {
+    border-top-color: #1f1f1f !important;
+  }
+
+  /* Hide Mapbox logo and info - remove this in production */
+  .mapboxgl-ctrl-logo {
+    display: none !important;
+  }
 }

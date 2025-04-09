@@ -1,106 +1,16 @@
 
-import { useState, useCallback, useMemo, useEffect } from "react";
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/providers/ThemeProvider";
-import { MapPin, Navigation } from "lucide-react";
+import { Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
-// Map styles for light and dark mode
-const lightMapStyle = [
-  {
-    "elementType": "geometry",
-    "stylers": [{"color": "#f5f5f5"}]
-  },
-  {
-    "elementType": "labels.icon",
-    "stylers": [{"visibility": "off"}]
-  },
-  {
-    "elementType": "labels.text.fill",
-    "stylers": [{"color": "#616161"}]
-  },
-  {
-    "elementType": "labels.text.stroke",
-    "stylers": [{"color": "#f5f5f5"}]
-  },
-  {
-    "featureType": "administrative",
-    "elementType": "geometry",
-    "stylers": [{"visibility": "off"}]
-  },
-  {
-    "featureType": "poi",
-    "stylers": [{"visibility": "off"}]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry",
-    "stylers": [{"color": "#ffffff"}]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.icon",
-    "stylers": [{"visibility": "off"}]
-  },
-  {
-    "featureType": "transit",
-    "stylers": [{"visibility": "off"}]
-  },
-  {
-    "featureType": "water",
-    "elementType": "geometry",
-    "stylers": [{"color": "#e9e9e9"}]
-  }
-];
-
-const darkMapStyle = [
-  {
-    "elementType": "geometry",
-    "stylers": [{"color": "#212121"}]
-  },
-  {
-    "elementType": "labels.icon",
-    "stylers": [{"visibility": "off"}]
-  },
-  {
-    "elementType": "labels.text.fill",
-    "stylers": [{"color": "#757575"}]
-  },
-  {
-    "elementType": "labels.text.stroke",
-    "stylers": [{"color": "#212121"}]
-  },
-  {
-    "featureType": "administrative",
-    "elementType": "geometry",
-    "stylers": [{"visibility": "off"}]
-  },
-  {
-    "featureType": "poi",
-    "stylers": [{"visibility": "off"}]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry",
-    "stylers": [{"color": "#424242"}]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.icon",
-    "stylers": [{"visibility": "off"}]
-  },
-  {
-    "featureType": "transit",
-    "stylers": [{"visibility": "off"}]
-  },
-  {
-    "featureType": "water",
-    "elementType": "geometry",
-    "stylers": [{"color": "#000000"}]
-  }
-];
+// Set your Mapbox token here (temporary solution)
+// In production, this should be stored securely
+const MAPBOX_TOKEN = "pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbHl5dHdhYjEyMHFjMmpwNXFqNnJjNWxqIn0.AuLxo2X7rcpBzRGc9KJdvA";
 
 interface Location {
   lat: number;
@@ -111,7 +21,6 @@ interface Vendor {
   id: string;
   name: string;
   location: Location;
-  // Add the missing distance property that's causing the TypeScript error
   distance?: string;
 }
 
@@ -124,6 +33,10 @@ interface MapProps {
   onVendorClick?: (vendorId: string) => void;
 }
 
+// Light and dark mode styles for Mapbox
+const LIGHT_STYLE = "mapbox://styles/mapbox/light-v11";
+const DARK_STYLE = "mapbox://styles/mapbox/dark-v11";
+
 export function Map({
   className,
   height = "240px",
@@ -133,15 +46,49 @@ export function Map({
   onVendorClick,
 }: MapProps) {
   const { theme } = useTheme();
-  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<{[key: string]: mapboxgl.Marker}>({});
+  const popupsRef = useRef<{[key: string]: mapboxgl.Popup}>({});
   const [userLocation, setUserLocation] = useState<Location | null>(null);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [isLocating, setIsLocating] = useState(false);
-  
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: "DEMO_MAP_KEY" // Replace with your API key when using in production
-  });
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  // Initialize map when component mounts
+  useEffect(() => {
+    if (!mapContainer.current) return;
+    
+    mapboxgl.accessToken = MAPBOX_TOKEN;
+    
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: theme === 'dark' ? DARK_STYLE : LIGHT_STYLE,
+      center: [center.lng, center.lat],
+      zoom: zoom,
+      attributionControl: false
+    });
+
+    map.current.addControl(new mapboxgl.AttributionControl(), 'top-left');
+    
+    map.current.on('load', () => {
+      setMapLoaded(true);
+    });
+    
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, []);
+
+  // Update map style when theme changes
+  useEffect(() => {
+    if (map.current) {
+      map.current.setStyle(theme === 'dark' ? DARK_STYLE : LIGHT_STYLE);
+    }
+  }, [theme]);
 
   // Get user's location on component mount
   useEffect(() => {
@@ -153,6 +100,15 @@ export function Map({
             lng: position.coords.longitude
           };
           setUserLocation(userPos);
+          
+          // Center map on user location when first obtained
+          if (map.current && !isLocating) {
+            map.current.flyTo({
+              center: [userPos.lng, userPos.lat],
+              zoom: 15,
+              essential: true
+            });
+          }
         },
         (error) => {
           console.error("Error getting user location:", error);
@@ -164,41 +120,30 @@ export function Map({
     }
   }, []);
 
-  const mapOptions = useMemo(() => ({
-    disableDefaultUI: false,
-    zoomControl: true,
-    streetViewControl: false,
-    mapTypeControl: false,
-    fullscreenControl: false,
-    clickableIcons: false,
-    scrollwheel: true,
-    styles: theme === "dark" ? darkMapStyle : lightMapStyle,
-  }), [theme]);
+  // Add user location marker when location is available and map is loaded
+  useEffect(() => {
+    if (!map.current || !mapLoaded || !userLocation) return;
 
-  const onLoad = useCallback((map: google.maps.Map) => {
-    setMap(map);
-  }, []);
-
-  const onUnmount = useCallback(() => {
-    setMap(null);
-  }, []);
-
-  // Center the map on the user's location
-  const centerOnUser = useCallback(() => {
-    if (!map || !userLocation) {
-      toast.error("Unable to locate you. Please try again.");
-      return;
+    // Clear any existing user marker
+    if (markersRef.current['user']) {
+      markersRef.current['user'].remove();
     }
     
-    setIsLocating(true);
-    map.panTo(userLocation);
-    map.setZoom(15);
+    // Create a user location marker
+    const el = document.createElement('div');
+    el.className = 'user-location-marker';
+    el.style.width = '18px';
+    el.style.height = '18px';
+    el.style.borderRadius = '50%';
+    el.style.backgroundColor = '#4285F4';
+    el.style.border = '2px solid white';
+    el.style.boxShadow = '0 0 0 2px rgba(0,0,0,0.1)';
     
-    // Add a slight delay before turning off the locating animation
-    setTimeout(() => setIsLocating(false), 1000);
-    
-    toast.success("Map centered on your location");
-  }, [map, userLocation]);
+    markersRef.current['user'] = new mapboxgl.Marker(el)
+      .setLngLat([userLocation.lng, userLocation.lat])
+      .addTo(map.current);
+      
+  }, [userLocation, mapLoaded]);
 
   // Calculate distance between two points
   const getDistance = (pos1: Location, pos2: Location): number => {
@@ -213,7 +158,7 @@ export function Map({
     return R * c;
   };
 
-  // Find nearby vendors (within 10km)
+  // Find nearby vendors (within 10km) with distance calculation
   const nearbyVendors = useMemo(() => {
     if (!userLocation) return vendors;
     
@@ -227,84 +172,116 @@ export function Map({
     });
   }, [vendors, userLocation]);
 
+  // Add vendor markers to the map
+  useEffect(() => {
+    if (!map.current || !mapLoaded) return;
+    
+    // Remove existing markers and popups
+    Object.values(markersRef.current).forEach(marker => {
+      if (marker !== markersRef.current['user']) {
+        marker.remove();
+      }
+    });
+    
+    Object.values(popupsRef.current).forEach(popup => {
+      popup.remove();
+    });
+    
+    // Add new markers for vendors
+    nearbyVendors.forEach((vendor) => {
+      // Create marker element
+      const el = document.createElement('div');
+      el.className = 'vendor-marker';
+      el.style.width = '14px';
+      el.style.height = '14px';
+      el.style.borderRadius = '50%';
+      el.style.backgroundColor = theme === 'dark' ? 'white' : 'black';
+      el.style.border = `1px solid ${theme === 'dark' ? 'black' : 'white'}`;
+      
+      // Create popup for this vendor
+      const popup = new mapboxgl.Popup({ offset: 25, closeButton: false })
+        .setHTML(`
+          <div class="p-2 max-w-[200px]" style="color: ${theme === 'dark' ? 'white' : 'black'}; background: ${theme === 'dark' ? '#1f1f1f' : 'white'};">
+            <h3 style="font-weight: 500;">${vendor.name}</h3>
+            ${vendor.distance ? `<p style="font-size: 0.875rem; color: ${theme === 'dark' ? '#aaa' : '#666'};">${vendor.distance}</p>` : ''}
+            <button 
+              id="vendor-${vendor.id}-button"
+              style="margin-top: 8px; font-size: 0.875rem; color: #3b82f6; cursor: pointer;"
+            >
+              View Details
+            </button>
+          </div>
+        `);
+        
+      // Create and add the marker
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat([vendor.location.lng, vendor.location.lat])
+        .setPopup(popup)
+        .addTo(map.current!);
+        
+      // Store references
+      markersRef.current[vendor.id] = marker;
+      popupsRef.current[vendor.id] = popup;
+      
+      // Add event listener for popup
+      marker.getElement().addEventListener('click', () => {
+        setSelectedVendor(vendor);
+      });
+      
+      // Add event listener for the "View Details" button inside popup
+      popup.on('open', () => {
+        setTimeout(() => {
+          const button = document.getElementById(`vendor-${vendor.id}-button`);
+          if (button) {
+            button.addEventListener('click', () => {
+              if (onVendorClick) {
+                onVendorClick(vendor.id);
+              }
+              popup.remove();
+            });
+          }
+        }, 0);
+      });
+    });
+    
+  }, [nearbyVendors, theme, mapLoaded, onVendorClick]);
+
+  // Center the map on the user's location
+  const centerOnUser = useCallback(() => {
+    if (!map.current || !userLocation) {
+      toast.error("Unable to locate you. Please try again.");
+      return;
+    }
+    
+    setIsLocating(true);
+    
+    map.current.flyTo({
+      center: [userLocation.lng, userLocation.lat],
+      zoom: 15,
+      essential: true
+    });
+    
+    // Add a slight delay before turning off the locating animation
+    setTimeout(() => setIsLocating(false), 1000);
+    
+    toast.success("Map centered on your location");
+  }, [map, userLocation]);
+
   return (
     <div 
       className={cn("w-full overflow-hidden rounded-lg relative", className)} 
       style={{ height }}
     >
-      {!isLoaded ? (
+      {!mapLoaded ? (
         <div className="w-full h-full bg-secondary flex items-center justify-center">
           <div className="animate-pulse-opacity">Loading map...</div>
         </div>
       ) : (
         <>
-          <GoogleMap
-            mapContainerClassName="map-container h-full w-full"
-            center={userLocation || center}
-            zoom={zoom}
-            onLoad={onLoad}
-            onUnmount={onUnmount}
-            options={mapOptions}
-            onClick={() => setSelectedVendor(null)}
-          >
-            {/* User Location Marker */}
-            {userLocation && (
-              <Marker
-                position={userLocation}
-                icon={{
-                  path: google.maps.SymbolPath.CIRCLE,
-                  scale: 8,
-                  fillColor: "#4285F4",
-                  fillOpacity: 1,
-                  strokeWeight: 2,
-                  strokeColor: "#FFFFFF",
-                }}
-                title="Your Location"
-              />
-            )}
-
-            {/* Vendor Markers */}
-            {nearbyVendors.map((vendor) => (
-              <Marker
-                key={vendor.id}
-                position={vendor.location}
-                title={vendor.name}
-                onClick={() => setSelectedVendor(vendor)}
-                icon={{
-                  path: google.maps.SymbolPath.CIRCLE,
-                  scale: 8,
-                  fillColor: theme === "dark" ? "#FFFFFF" : "#000000",
-                  fillOpacity: 1,
-                  strokeWeight: 1,
-                  strokeColor: theme === "dark" ? "#000000" : "#FFFFFF",
-                }}
-              />
-            ))}
-
-            {/* Info Window for Selected Vendor */}
-            {selectedVendor && (
-              <InfoWindow
-                position={selectedVendor.location}
-                onCloseClick={() => setSelectedVendor(null)}
-              >
-                <div className="p-2 max-w-[200px]">
-                  <h3 className="font-medium text-black">{selectedVendor.name}</h3>
-                  {selectedVendor.distance && (
-                    <p className="text-sm text-gray-600">{selectedVendor.distance}</p>
-                  )}
-                  <button
-                    onClick={() => {
-                      setSelectedVendor(null);
-                      onVendorClick?.(selectedVendor.id);
-                    }}
-                    className="mt-2 text-sm text-blue-600 hover:text-blue-800"
-                  >
-                    View Details
-                  </button>
-                </div>
-              </InfoWindow>
-            )}
-          </GoogleMap>
+          <div 
+            ref={mapContainer} 
+            className="map-container h-full w-full"
+          />
 
           {/* Location Button */}
           <Button
