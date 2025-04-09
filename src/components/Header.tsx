@@ -5,6 +5,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
+import { useTheme } from "@/providers/ThemeProvider";
 
 interface HeaderProps {
   location?: string;
@@ -18,6 +19,7 @@ export function Header({
   className,
 }: HeaderProps) {
   const { totalCredits } = useCart();
+  const { theme } = useTheme();
   
   return (
     <header
@@ -28,9 +30,12 @@ export function Header({
     >
       <div className="flex items-center">
         <img 
-          src="/lovable-uploads/603468bd-8f0d-4eee-a527-7ef15646b137.png" 
+          src={theme === "dark" ? "/lovable-uploads/603468bd-8f0d-4eee-a527-7ef15646b137.png" : "/lovable-uploads/603468bd-8f0d-4eee-a527-7ef15646b137.png"} 
           alt="SipScribe" 
           className="h-6 w-auto"
+          style={{ 
+            filter: theme === "dark" ? "invert(1) brightness(1.5)" : "none" 
+          }}
         />
       </div>
 

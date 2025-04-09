@@ -1,3 +1,4 @@
+
 export const vendors = [
   {
     id: "v1",
@@ -88,38 +89,53 @@ export const vendors = [
 
 export const subscriptionPlans = [
   {
-    id: "monthly-basic",
-    name: "Basic",
-    description: "Perfect for casual visits",
-    price: "$19.99/month",
+    id: "single-credit",
+    name: "Single Credit",
+    description: "One-time purchase for a single drink",
+    price: "$2.99",
     features: [
-      "8 drink credits per month",
+      "1 drink credit",
+      "No expiration",
       "Standard drinks only",
-      "No rollover credits"
+      "No commitment"
+    ]
+  },
+  {
+    id: "monthly-basic",
+    name: "Monthly Basic",
+    description: "Perfect for regular drinks",
+    price: "$14.99/month",
+    features: [
+      "30 drink credits per month",
+      "Standard drinks only",
+      "Unused credits expire monthly",
+      "Cancel anytime"
     ]
   },
   {
     id: "monthly-premium",
-    name: "Premium",
+    name: "Monthly Premium",
     description: "Our most popular plan",
-    price: "$39.99/month",
+    price: "$29.99/month",
     features: [
-      "20 drink credits per month",
+      "60 drink credits per month",
       "Premium drinks included",
-      "Rollover up to 5 credits",
-      "Bring a friend feature (1x/month)"
+      "Unused credits expire monthly",
+      "Cancel anytime",
+      "Priority pickup"
     ]
   },
   {
     id: "annual-unlimited",
-    name: "Unlimited",
-    description: "For the true enthusiast",
-    price: "$89.99/month",
+    name: "Annual Plan",
+    description: "Best value for daily drinkers",
+    price: "$299.99/year",
     features: [
-      "Unlimited standard drinks",
-      "Premium drinks included",
-      "Priority pickup",
-      "Exclusive tastings and events"
+      "730 drink credits per year (2 per day)",
+      "All drinks included",
+      "Flexible credit usage",
+      "Exclusive tastings and events",
+      "VIP customer service"
     ]
   }
 ];
