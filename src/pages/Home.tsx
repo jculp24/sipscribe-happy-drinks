@@ -42,7 +42,7 @@ const Home = () => {
       
       <main className="flex flex-col w-full pb-16">
         <Map 
-          height="240px" 
+          height="300px" 
           vendors={vendors.map(v => ({
             id: v.id,
             name: v.name,
