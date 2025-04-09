@@ -111,6 +111,8 @@ interface Vendor {
   id: string;
   name: string;
   location: Location;
+  // Add the missing distance property that's causing the TypeScript error
+  distance?: string;
 }
 
 interface MapProps {
@@ -262,7 +264,7 @@ export function Map({
             )}
 
             {/* Vendor Markers */}
-            {nearbyVendors.map((vendor: any) => (
+            {nearbyVendors.map((vendor) => (
               <Marker
                 key={vendor.id}
                 position={vendor.location}
