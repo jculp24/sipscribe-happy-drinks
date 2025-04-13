@@ -1,69 +1,121 @@
-# Welcome to your Lovable project
 
-## Project info
+# Sipscribe - Beverage Subscription App
 
-**URL**: https://lovable.dev/projects/85659c11-691f-41d7-a39a-5ba11cb8f228
+![Sipscribe Logo](/lovable-uploads/603468bd-8f0d-4eee-a527-7ef15646b137.png)
 
-## How can I edit this code?
+Sipscribe is a mobile-first web application that connects users with local beverage vendors through a flexible subscription service. This platform allows users to discover and enjoy a variety of drinks from coffee shops, bubble tea stores, smoothie bars, and more - all within a convenient subscription model.
 
-There are several ways of editing your application.
+## Features
 
-**Use Lovable**
+### User Authentication
+- Simple login/logout functionality
+- User profile management
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/85659c11-691f-41d7-a39a-5ba11cb8f228) and start prompting.
+### Home Screen & Discovery
+- Interactive map showing nearby vendor locations
+- Category-based filtering (Coffee, Bubble Tea, Juice, Smoothie, etc.)
+- Search functionality to find specific vendors or drinks
+- Vendor listing with key information
 
-Changes made via Lovable will be committed automatically to this repo.
+### Vendor Details
+- Detailed vendor information including menu, location, and hours
+- Menu browsing with item descriptions and prices
+- Add items to cart directly from vendor pages
+- Save favorite vendors for quick access
 
-**Use your preferred IDE**
+### Subscription Management
+- Multiple subscription tiers:
+  - **Single-Use Credit**: One-time purchase for a single drink
+  - **Basic Monthly**: $14.99/month for 30 credits
+  - **Premium Monthly**: $29.99/month for 60 credits
+  - **Annual**: $299.99/year for 730 credits
+- Subscription management interface
+- Credit usage tracking
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Shopping & Orders
+- Add items to cart from multiple vendors
+- Adjust quantities in cart
+- Checkout process using subscription credits
+- Order history with detailed purchase information
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Profile & Settings
+- User profile management
+- Subscription status and credit balance
+- Order history
+- Dark/light theme toggle
+- Quick access to favorite vendors
 
-Follow these steps:
+## Technical Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Sipscribe is built with:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- **React**: Frontend framework
+- **TypeScript**: Type-safe JavaScript
+- **Tailwind CSS**: Utility-first CSS framework
+- **shadcn/ui**: Component library
+- **React Router**: Navigation and routing
+- **Mapbox**: Location and mapping services
+- **Vite**: Frontend build tool
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+
+# Navigate to the project directory
+cd sipscribe
+
+# Install dependencies
+npm install
+
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Application Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+sipscribe/
+├── src/
+│   ├── components/       # Reusable UI components
+│   ├── contexts/         # React contexts (e.g., CartContext)
+│   ├── data/             # Mock data and utilities
+│   ├── hooks/            # Custom React hooks
+│   ├── lib/              # Utility functions
+│   ├── pages/            # Page components for different routes
+│   ├── providers/        # Provider components (e.g., ThemeProvider)
+│   └── App.tsx           # Main application component with routing
+```
 
-**Use GitHub Codespaces**
+## Deployment
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The application can be deployed to various platforms like Netlify, Vercel, or GitHub Pages.
 
-## What technologies are used for this project?
+```bash
+# Build the application
+npm run build
 
-This project is built with .
+# Preview the production build locally
+npm run preview
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Contributing
 
-## How can I deploy this project?
+Contributions to Sipscribe are welcome! Please feel free to submit a Pull Request.
 
-Simply open [Lovable](https://lovable.dev/projects/85659c11-691f-41d7-a39a-5ba11cb8f228) and click on Share -> Publish.
+## License
 
-## I want to use a custom domain - is that possible?
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Acknowledgments
+
+- All icons provided by Lucide Icons
+- UI components from shadcn/ui library
+- Map functionality powered by Mapbox
