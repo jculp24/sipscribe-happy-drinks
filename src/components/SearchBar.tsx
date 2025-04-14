@@ -4,17 +4,17 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 interface SearchBarProps {
-  value: string;
-  onChange: (value: string) => void;
+  onSearch: (value: string) => void;
   className?: string;
   placeholder?: string;
+  value?: string;
 }
 
 export function SearchBar({
-  value,
-  onChange,
+  onSearch,
   className,
   placeholder = "Search drinks, vendors...",
+  value = "",
 }: SearchBarProps) {
   return (
     <div className={cn("relative w-full", className)}>
@@ -25,7 +25,7 @@ export function SearchBar({
       <Input
         type="search"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onSearch(e.target.value)}
         placeholder={placeholder}
         className="pl-9 h-10 w-full"
         aria-label="Search"
