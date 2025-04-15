@@ -7,7 +7,7 @@ import { DrinkCategories } from "@/components/DrinkCategories";
 import { VendorList } from "@/components/VendorList";
 import { vendors, categories, user } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
-import { Cup, Salad, Wine } from "lucide-react";
+import { Coffee, Salad, Wine } from "lucide-react";  // Replaced Cup with Coffee
 
 const Home = () => {
   const navigate = useNavigate();
