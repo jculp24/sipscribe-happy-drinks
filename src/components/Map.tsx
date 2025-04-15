@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -49,7 +48,7 @@ export function Map({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<{[key: string]: mapboxgl.Marker}>({});
-  const popupsRef = useRef<{[key: string]: mapboxgl.Popup}>({});
+  const labelMarkersRef = useRef<{[key: string]: mapboxgl.Marker}>({});
   const [userLocation, setUserLocation] = useState<Location | null>(null);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -63,7 +62,7 @@ export function Map({
     
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: theme === 'dark' ? DARK_STYLE : LIGHT_STYLE,
+      style: DARK_STYLE,
       center: [center.lng, center.lat],
       zoom: zoom,
       attributionControl: false
@@ -82,13 +81,6 @@ export function Map({
       }
     };
   }, []);
-
-  // Update map style when theme changes
-  useEffect(() => {
-    if (map.current) {
-      map.current.setStyle(theme === 'dark' ? DARK_STYLE : LIGHT_STYLE);
-    }
-  }, [theme]);
 
   // Get user's location on component mount
   useEffect(() => {
@@ -183,64 +175,53 @@ export function Map({
       }
     });
     
-    Object.values(popupsRef.current).forEach(popup => {
-      popup.remove();
+    Object.values(labelMarkersRef.current).forEach(marker => {
+      marker.remove();
     });
     
     // Add new markers for vendors
     nearbyVendors.forEach((vendor) => {
-      // Create marker element
-      const el = document.createElement('div');
-      el.className = 'vendor-marker';
-      el.style.width = '14px';
-      el.style.height = '14px';
-      el.style.borderRadius = '50%';
-      el.style.backgroundColor = theme === 'dark' ? 'white' : 'black';
-      el.style.border = `1px solid ${theme === 'dark' ? 'black' : 'white'}`;
+      // Create pin marker element
+      const pinEl = document.createElement('div');
+      pinEl.style.width = '32px';
+      pinEl.style.height = '32px';
+      pinEl.style.backgroundImage = "url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23cc2828\" stroke=\"%23ffffff\" stroke-width=\"0.5\"><path d=\"M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z\"/><circle cx=\"12\" cy=\"10\" r=\"3\" fill=\"white\"/></svg>')";
+      pinEl.style.backgroundSize = 'contain';
+      pinEl.style.backgroundRepeat = 'no-repeat';
+      pinEl.style.cursor = 'pointer';
       
-      // Create popup for this vendor
-      const popup = new mapboxgl.Popup({ offset: 25, closeButton: false })
-        .setHTML(`
-          <div class="p-2 max-w-[200px]" style="color: ${theme === 'dark' ? 'white' : 'black'}; background: ${theme === 'dark' ? '#1f1f1f' : 'white'};">
-            <h3 style="font-weight: 500;">${vendor.name}</h3>
-            ${vendor.distance ? `<p style="font-size: 0.875rem; color: ${theme === 'dark' ? '#aaa' : '#666'};">${vendor.distance}</p>` : ''}
-            <button 
-              id="vendor-${vendor.id}-button"
-              style="margin-top: 8px; font-size: 0.875rem; color: #3b82f6; cursor: pointer;"
-            >
-              View Details
-            </button>
-          </div>
-        `);
-        
       // Create and add the marker
-      const marker = new mapboxgl.Marker(el)
+      const marker = new mapboxgl.Marker(pinEl)
         .setLngLat([vendor.location.lng, vendor.location.lat])
-        .setPopup(popup)
         .addTo(map.current!);
         
+      // Create and add label marker
+      const labelEl = document.createElement('div');
+      labelEl.className = 'map-pin-label';
+      labelEl.textContent = vendor.name;
+      labelEl.style.transform = 'translateY(-45px)';
+      
+      const labelMarker = new mapboxgl.Marker(labelEl)
+        .setLngLat([vendor.location.lng, vendor.location.lat])
+        .addTo(map.current!);
+      
       // Store references
       markersRef.current[vendor.id] = marker;
-      popupsRef.current[vendor.id] = popup;
+      labelMarkersRef.current[vendor.id] = labelMarker;
       
-      // Add event listener for popup
+      // Add event listener for marker
       marker.getElement().addEventListener('click', () => {
         setSelectedVendor(vendor);
+        if (onVendorClick) {
+          onVendorClick(vendor.id);
+        }
       });
       
-      // Add event listener for the "View Details" button inside popup
-      popup.on('open', () => {
-        setTimeout(() => {
-          const button = document.getElementById(`vendor-${vendor.id}-button`);
-          if (button) {
-            button.addEventListener('click', () => {
-              if (onVendorClick) {
-                onVendorClick(vendor.id);
-              }
-              popup.remove();
-            });
-          }
-        }, 0);
+      // Add event listener for label
+      labelEl.addEventListener('click', () => {
+        if (onVendorClick) {
+          onVendorClick(vendor.id);
+        }
       });
     });
     
@@ -269,7 +250,7 @@ export function Map({
 
   return (
     <div 
-      className={cn("w-full overflow-hidden rounded-lg relative", className)} 
+      className={cn("w-full overflow-hidden rounded-2xl relative", className)} 
       style={{ height }}
     >
       {!mapLoaded ? (

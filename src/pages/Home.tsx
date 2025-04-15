@@ -7,6 +7,7 @@ import { DrinkCategories } from "@/components/DrinkCategories";
 import { VendorList } from "@/components/VendorList";
 import { vendors, categories, user } from "@/data/mockData";
 import { useNavigate } from "react-router-dom";
+import { Cup, Salad, Wine } from "lucide-react";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -28,10 +29,29 @@ const Home = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const formattedCategories = categories.map(category => ({
-    ...category,
-    icon: <span aria-hidden="true" className="text-lg">{category.icon}</span>
-  }));
+  // Add icons to categories
+  const formattedCategories = [
+    {
+      id: "soda",
+      name: "Soda",
+      icon: "🥤"
+    },
+    {
+      id: "diet-soda",
+      name: "Diet Soda",
+      icon: "🥤"
+    },
+    {
+      id: "juice",
+      name: "Juice",
+      icon: "🧃"
+    },
+    {
+      id: "water",
+      name: "Water",
+      icon: "💧"
+    }
+  ];
 
   return (
     <div className="sipscribe-container">
@@ -41,7 +61,7 @@ const Home = () => {
       
       <main className="flex flex-col w-full pb-16">
         <Map 
-          height="300px" 
+          height="320px" 
           vendors={vendors.map(v => ({
             id: v.id,
             name: v.name,
@@ -50,7 +70,7 @@ const Home = () => {
           onVendorClick={handleVendorClick}
         />
         
-        <div className="px-4 py-3">
+        <div className="px-4 py-4">
           <SearchBar 
             value={searchQuery} 
             onChange={setSearchQuery} 
@@ -61,7 +81,7 @@ const Home = () => {
           categories={formattedCategories}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
-          className="my-2"
+          className="my-3"
         />
         
         <VendorList 
