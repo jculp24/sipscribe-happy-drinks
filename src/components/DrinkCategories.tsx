@@ -6,7 +6,6 @@ import {
   CarouselContent,
   CarouselItem
 } from "@/components/ui/carousel";
-import { categories } from "@/data/mockData";
 
 interface Category {
   id: string;
@@ -15,14 +14,16 @@ interface Category {
 }
 
 interface DrinkCategoriesProps {
+  categories: Category[];
   selectedCategory: string | null;
-  onSelect: (categoryId: string | null) => void;
+  onSelectCategory: (categoryId: string | null) => void;
   className?: string;
 }
 
 export function DrinkCategories({
+  categories,
   selectedCategory,
-  onSelect,
+  onSelectCategory,
   className,
 }: DrinkCategoriesProps) {
   return (
@@ -42,7 +43,7 @@ export function DrinkCategories({
                 variant={selectedCategory === category.id ? "default" : "outline"}
                 size="sm"
                 className="h-auto py-2 px-3 rounded-full"
-                onClick={() => onSelect(
+                onClick={() => onSelectCategory(
                   selectedCategory === category.id ? null : category.id
                 )}
                 aria-pressed={selectedCategory === category.id}

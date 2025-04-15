@@ -15,9 +15,6 @@ import Notifications from "@/pages/Notifications";
 import Cart from "@/pages/Cart";
 import History from "@/pages/History";
 import NotFound from "@/pages/NotFound";
-import VendorSignup from "@/pages/VendorSignup";
-import VendorDashboard from "@/pages/VendorDashboard";
-import VendorSettings from "@/pages/VendorSettings";
 
 const queryClient = new QueryClient();
 
@@ -38,9 +35,6 @@ const App = () => (
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/history" element={<History />} />
-              <Route path="/vendor-signup" element={<VendorSignup />} />
-              <Route path="/vendor-dashboard/:id" element={<VendorDashboard />} />
-              <Route path="/vendor-settings/:id" element={<VendorSettings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
