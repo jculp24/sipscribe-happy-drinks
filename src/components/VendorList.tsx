@@ -26,9 +26,9 @@ export function VendorList({ vendors, className, title }: VendorListProps) {
   }
 
   return (
-    <div className={cn("w-full bg-card rounded-t-2xl shadow-lg", className)}>
+    <div className={cn("w-full", className)}>
       {title && (
-        <h2 className="font-semibold text-xl px-4 pt-4 pb-3">{title}</h2>
+        <h2 className="font-semibold text-lg px-4 pt-4 pb-2">{title}</h2>
       )}
       <div className="divide-y divide-border">
         {vendors.map((vendor) => (

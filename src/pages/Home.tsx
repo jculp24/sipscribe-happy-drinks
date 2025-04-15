@@ -1,93 +1,71 @@
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { Map } from "@/components/Map";
 import { SearchBar } from "@/components/SearchBar";
 import { DrinkCategories } from "@/components/DrinkCategories";
+import { Map } from "@/components/Map";
 import { VendorList } from "@/components/VendorList";
-import { vendors, categories, user } from "@/data/mockData";
-import { useNavigate } from "react-router-dom";
-import { Coffee, Salad, Wine } from "lucide-react";  // Replaced Cup with Coffee
+import { vendors } from "@/data/mockData";
+import { Button } from "@/components/ui/button";
+import { Store } from "lucide-react";
 
 const Home = () => {
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const handleVendorClick = useCallback((vendorId: string) => {
-    navigate(`/vendor/${vendorId}`);
-  }, [navigate]);
-
-  // Filter vendors based on search and category
+  // Filter vendors based on category and search query
   const filteredVendors = vendors.filter((vendor) => {
-    const matchesSearch = searchQuery === "" || 
-      vendor.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory
+      ? vendor.primaryCategory === selectedCategory
+      : true;
     
-    const matchesCategory = selectedCategory === null || 
-      vendor.primaryCategory?.toLowerCase() === categories.find(c => c.id === selectedCategory)?.name.toLowerCase();
+    const matchesSearch = searchQuery
+      ? vendor.name.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
     
-    return matchesSearch && matchesCategory;
+    return matchesCategory && matchesSearch;
   });
 
-  // Add icons to categories
-  const formattedCategories = [
-    {
-      id: "soda",
-      name: "Soda",
-      icon: "🥤"
-    },
-    {
-      id: "diet-soda",
-      name: "Diet Soda",
-      icon: "🥤"
-    },
-    {
-      id: "juice",
-      name: "Juice",
-      icon: "🧃"
-    },
-    {
-      id: "water",
-      name: "Water",
-      icon: "💧"
-    }
-  ];
-
   return (
-    <div className="sipscribe-container">
-      <Header 
-        unreadNotifications={true}
-      />
+    <div className="min-h-screen flex flex-col">
+      <Header />
       
-      <main className="flex flex-col w-full pb-16">
-        <Map 
-          height="320px" 
-          vendors={vendors.map(v => ({
-            id: v.id,
-            name: v.name,
-            location: v.location
-          }))}
-          onVendorClick={handleVendorClick}
-        />
-        
-        <div className="px-4 py-4">
-          <SearchBar 
-            value={searchQuery} 
-            onChange={setSearchQuery} 
+      <main className="flex-1 pb-16">
+        <div className="p-4 space-y-4">
+          <SearchBar onSearch={setSearchQuery} />
+          <DrinkCategories 
+            selectedCategory={selectedCategory} 
+            onSelect={setSelectedCategory} 
           />
         </div>
         
-        <DrinkCategories 
-          categories={formattedCategories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-          className="my-3"
-        />
+        <div className="px-4 pb-4">
+          <div className="relative w-full h-40 bg-secondary rounded-lg overflow-hidden">
+            <Map />
+            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-background/70 to-transparent">
+              <h2 className="font-medium">Discover nearby vendors</h2>
+              <p className="text-sm text-muted-foreground">Find drinks in your area</p>
+            </div>
+          </div>
+        </div>
         
-        <VendorList 
-          vendors={filteredVendors}
-          title="Nearby Vendors"
-        />
+        <div className="flex items-center justify-between px-4 py-2">
+          <h2 className="font-semibold text-lg">Vendors Near You</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
+            asChild
+          >
+            <Link to="/vendor-signup">
+              <Store className="h-4 w-4" />
+              Become a Vendor
+            </Link>
+          </Button>
+        </div>
+        
+        <VendorList vendors={filteredVendors} />
       </main>
     </div>
   );

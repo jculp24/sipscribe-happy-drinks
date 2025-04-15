@@ -1,10 +1,12 @@
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
   CarouselItem
 } from "@/components/ui/carousel";
+import { categories } from "@/data/mockData";
 
 interface Category {
   id: string;
@@ -13,22 +15,16 @@ interface Category {
 }
 
 interface DrinkCategoriesProps {
-  categories: Category[];
   selectedCategory: string | null;
-  onSelectCategory: (categoryId: string | null) => void;
+  onSelect: (categoryId: string | null) => void;
   className?: string;
 }
 
 export function DrinkCategories({
-  categories = [],
   selectedCategory,
-  onSelectCategory,
+  onSelect,
   className,
 }: DrinkCategoriesProps) {
-  if (!categories || categories.length === 0) {
-    return null;
-  }
-  
   return (
     <div className={cn("w-full", className)}>
       <Carousel
@@ -42,19 +38,20 @@ export function DrinkCategories({
         <CarouselContent className="px-4">
           {categories.map((category) => (
             <CarouselItem key={category.id} className="basis-auto pl-0 pr-3">
-              <button
-                className={cn(
-                  "category-pill", 
-                  selectedCategory === category.id ? "active" : "inactive"
-                )}
-                onClick={() => onSelectCategory(
+              <Button
+                variant={selectedCategory === category.id ? "default" : "outline"}
+                size="sm"
+                className="h-auto py-2 px-3 rounded-full"
+                onClick={() => onSelect(
                   selectedCategory === category.id ? null : category.id
                 )}
                 aria-pressed={selectedCategory === category.id}
               >
-                <span className="text-xl">{category.icon}</span>
-                <span className="text-sm">{category.name}</span>
-              </button>
+                <span className="flex items-center gap-1.5">
+                  {category.icon}
+                  <span className="text-xs font-medium">{category.name}</span>
+                </span>
+              </Button>
             </CarouselItem>
           ))}
         </CarouselContent>
